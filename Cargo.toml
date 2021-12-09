@@ -10,7 +10,7 @@ description = "Awaitable type with input and output that can be stored in contai
 repository = "https://github.com/NobodyXu/awaitable"
 
 keywords = ["async", "utilities"]
-categories = ["asynchronous", "utilities"]
+categories = ["asynchronous"]
 
 [dependencies]
 parking_lot = "0.11.2"
