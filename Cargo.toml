@@ -3,5 +3,14 @@ name = "awaitable"
 version = "0.1.0"
 edition = "2018"
 
+authors = ["Jiahao XU <Jiahao_XU@outlook.com>"]
+
+license = "MIT"
+description = "Awaitable type with input and output that can be stored in container."
+repository = "https://github.com/NobodyXu/awaitable"
+
+keywords = ["async", "utilities"]
+categories = ["asynchronous", "utilities"]
+
 [dependencies]
 parking_lot = "0.11.2"
