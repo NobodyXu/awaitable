@@ -30,6 +30,10 @@ impl<Input, Output> Awaitable<Input, Output> {
 }
 
 impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
+    pub fn reset(&self, input: Option<Input>) {
+        *self.0.lock() = InnerState::Ongoing(input, None);
+    }
+
     /// Return true if the task is already done.
     ///
     /// **
