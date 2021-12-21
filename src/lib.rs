@@ -30,6 +30,11 @@ impl<Input, Output> Awaitable<Input, Output> {
 }
 
 impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
+    /// Reset `Awaitable` to its initial state, equivalent to
+    /// calling `Self::new(input)` again.
+    ///
+    /// After this call, `install_waker`, `take_input` and `done`
+    /// can be called again.
     pub fn reset(&self, input: Option<Input>) {
         *self.0.lock() = InnerState::Ongoing(input, None);
     }
