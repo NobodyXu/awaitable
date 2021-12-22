@@ -11,6 +11,8 @@ pub use error::Error;
 
 #[derive(Debug)]
 enum InnerState<Input, Output> {
+    Uninitialized,
+
     Ongoing(Option<Input>, Option<Waker>),
 
     /// The awaitable is done
@@ -18,18 +20,16 @@ enum InnerState<Input, Output> {
 
     Consumed,
 }
-impl<Input, Output> InnerState<Input, Output> {
-    const fn new(input: Option<Input>) -> Self {
-        InnerState::Ongoing(input, None)
-    }
-}
 
 #[derive(Debug)]
 pub struct Awaitable<Input, Output>(Mutex<InnerState<Input, Output>>);
 
 impl<Input, Output> Awaitable<Input, Output> {
-    pub const fn new(input: Option<Input>) -> Self {
-        Self(const_mutex(InnerState::new(input)))
+    /// Create an uninitialized `Awaitable`.
+    ///
+    /// Must be `reset` before it can be used.
+    pub const fn new() -> Self {
+        Self(const_mutex(InnerState::Uninitialized))
     }
 }
 
@@ -55,6 +55,8 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
         let mut guard = self.0.lock();
 
         match &mut *guard {
+            Uninitialized => Err(Error::Uninitialized),
+
             Ongoing(_input, stored_waker) => {
                 if stored_waker.is_some() {
                     Err(Error::WakerAlreadyInstalled)
@@ -75,6 +77,8 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
         let mut guard = self.0.lock();
 
         match &mut *guard {
+            Uninitialized => Err(Error::Uninitialized),
+
             Ongoing(input, _stored_waker) => Ok(input.take()),
             Done(_) => Ok(None),
             Consumed => Err(Error::AlreadyConsumed),
@@ -90,6 +94,8 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
         let prev_state = mem::replace(&mut *self.0.lock(), Done(value));
 
         match prev_state {
+            Uninitialized => Err(Error::Uninitialized),
+
             Done(_) => Err(Error::AlreadyDone),
             Ongoing(_input, stored_waker) => {
                 if let Some(waker) = stored_waker {
