@@ -112,4 +112,9 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
             _ => None,
         }
     }
+
+    /// Return true if current state is `Done`.
+    pub fn is_done(&self) -> bool {
+        matches!(&*self.0.lock(), InnerState::Done(_))
+    }
 }
