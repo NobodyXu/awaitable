@@ -13,4 +13,5 @@ keywords = ["async", "utilities"]
 categories = ["asynchronous"]
 
 [dependencies]
+thiserror = "1.0.29"
 parking_lot = "0.11.2"
