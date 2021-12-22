@@ -11,8 +11,4 @@ pub enum Error {
     /// Awaitable is marked done twice.
     #[error("Awaitable is marked done twice.")]
     AlreadyDone,
-
-    /// Waker is alreayd installed
-    #[error("Waker is already installed")]
-    WakerAlreadyInstalled,
 }

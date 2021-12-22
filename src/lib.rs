@@ -46,7 +46,6 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
     /// Return true if the task is already done.
     ///
     /// **
-    /// `install_waker` must not be registered twice.
     /// `install_waker` must not be called after `take_output` is called.
     /// **
     pub fn install_waker(&self, waker: Waker) -> Result<bool, Error> {
@@ -58,12 +57,8 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
             Uninitialized => Err(Error::Uninitialized),
 
             Ongoing(_input, stored_waker) => {
-                if stored_waker.is_some() {
-                    Err(Error::WakerAlreadyInstalled)
-                } else {
-                    *stored_waker = Some(waker);
-                    Ok(false)
-                }
+                *stored_waker = Some(waker);
+                Ok(false)
             }
             Done(_) => Ok(true),
             Consumed => Err(Error::AlreadyConsumed),
