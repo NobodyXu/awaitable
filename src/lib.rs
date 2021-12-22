@@ -1,9 +1,13 @@
+mod error;
+
 use core::fmt::Debug;
 use core::mem;
 use core::task::Waker;
 
 use parking_lot::const_mutex;
 use parking_lot::Mutex;
+
+pub use error::Error;
 
 #[derive(Debug)]
 enum InnerState<Input, Output> {
@@ -45,7 +49,7 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
     /// `install_waker` must not be registered twice.
     /// `install_waker` must not be called after `take_output` is called.
     /// **
-    pub fn install_waker(&self, waker: Waker) -> bool {
+    pub fn install_waker(&self, waker: Waker) -> Result<bool, Error> {
         use InnerState::*;
 
         let mut guard = self.0.lock();
@@ -53,52 +57,49 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
         match &mut *guard {
             Ongoing(_input, stored_waker) => {
                 if stored_waker.is_some() {
-                    panic!("Waker is installed twice before the awaitable is done");
+                    Err(Error::WakerAlreadyInstalled)
+                } else {
+                    *stored_waker = Some(waker);
+                    Ok(false)
                 }
-                *stored_waker = Some(waker);
-                false
             }
-            Done(_) => true,
-            Consumed => {
-                panic!("Waker is installed after the awaitable is done and its result consumed")
-            }
+            Done(_) => Ok(true),
+            Consumed => Err(Error::AlreadyConsumed),
         }
     }
 
     /// **`take_input` must not be called after `take_output` is called.
-    pub fn take_input(&self) -> Option<Input> {
+    pub fn take_input(&self) -> Result<Option<Input>, Error> {
         use InnerState::*;
 
         let mut guard = self.0.lock();
 
         match &mut *guard {
-            Ongoing(input, _stored_waker) => input.take(),
-            Done(_) => None,
-            Consumed => {
-                panic!("Task attempts to retrieve input after the awaitable is done and its result consumed")
-            }
+            Ongoing(input, _stored_waker) => Ok(input.take()),
+            Done(_) => Ok(None),
+            Consumed => Err(Error::AlreadyConsumed),
         }
     }
 
     /// `done` must be only called once on one instance of `Awaitable`.
     ///
     /// **`done` must not be called after `take_output` is called.**
-    pub fn done(&self, value: Output) {
+    pub fn done(&self, value: Output) -> Result<(), Error> {
         use InnerState::*;
 
         let prev_state = mem::replace(&mut *self.0.lock(), Done(value));
 
         match prev_state {
-            Done(_) => panic!("Awaitable is marked as done twice"),
+            Done(_) => Err(Error::AlreadyDone),
             Ongoing(_input, stored_waker) => {
                 if let Some(waker) = stored_waker {
                     waker.wake();
                 }
+
+                Ok(())
             }
-            Consumed => {
-                panic!("Awaitable is marked as done again after its result consumed")
-            }
-        };
+            Consumed => Err(Error::AlreadyConsumed),
+        }
     }
 
     /// Return `Some(output)` if the awaitable is done.
