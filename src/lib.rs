@@ -118,4 +118,9 @@ impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
     pub fn is_done(&self) -> bool {
         matches!(&*self.0.lock(), InnerState::Done(_))
     }
+
+    /// Return true if current state is `Consumed`.
+    pub fn is_consumed(&self) -> bool {
+        matches!(&*self.0.lock(), InnerState::Consumed)
+    }
 }
