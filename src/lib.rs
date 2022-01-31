@@ -21,6 +21,7 @@ enum InnerState<Input, Output> {
     Consumed,
 }
 
+/// Awaitable guarantees that there is no spurious wakeup
 #[derive(Debug)]
 pub struct Awaitable<Input, Output>(Mutex<InnerState<Input, Output>>);
 
