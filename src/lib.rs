@@ -33,7 +33,7 @@ impl<Input, Output> Awaitable<Input, Output> {
     }
 }
 
-impl<Input: Debug, Output: Debug> Awaitable<Input, Output> {
+impl<Input, Output> Awaitable<Input, Output> {
     /// Reset `Awaitable` to its initial state.
     ///
     /// After this call, `install_waker`, `take_input` and `done`
