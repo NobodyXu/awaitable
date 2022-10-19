@@ -1,5 +1,3 @@
-mod error;
-
 use core::fmt::Debug;
 use core::mem;
 use core::task::Waker;
@@ -7,7 +5,7 @@ use core::task::Waker;
 use parking_lot::const_mutex;
 use parking_lot::Mutex;
 
-pub use error::Error;
+pub use awaitable_error::Error;
 
 #[derive(Debug)]
 enum InnerState<Input, Output> {
