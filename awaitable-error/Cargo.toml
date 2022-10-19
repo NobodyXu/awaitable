@@ -11,6 +11,3 @@ repository = "https://github.com/NobodyXu/awaitable"
 
 keywords = ["async", "utilities"]
 categories = ["asynchronous"]
-
-[dependencies]
-thiserror = "1.0.29"
