@@ -1,9 +1,30 @@
-use core::fmt::Debug;
-use core::mem;
-use core::task::Waker;
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
-use parking_lot::const_mutex;
-use parking_lot::Mutex;
+use cfg_if::cfg_if;
+use std::{mem, task::Waker};
+
+cfg_if! {
+    if #[cfg(feature = "parking_lot")] {
+        use parking_lot::{const_mutex, Mutex};
+    } else {
+        use std::sync::{Mutex as StdMutex, MutexGuard};
+
+        #[derive(Debug)]
+        #[repr(transparent)]
+        struct Mutex<T>(StdMutex<T>);
+
+        impl<T> Mutex<T> {
+            fn new(val: T) -> Self {
+                Self(StdMutex::new(val))
+            }
+
+            #[track_caller]
+            fn lock(&self) -> MutexGuard<'_, T> {
+                self.0.lock().unwrap()
+            }
+        }
+    }
+}
 
 pub use awaitable_error::Error;
 
@@ -23,11 +44,25 @@ enum InnerState<Input, Output> {
 #[derive(Debug)]
 pub struct Awaitable<Input, Output>(Mutex<InnerState<Input, Output>>);
 
+impl<Input, Output> Default for Awaitable<Input, Output> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<Input, Output> Awaitable<Input, Output> {
     /// Create an uninitialized `Awaitable`.
     ///
     /// Must be `reset` before it can be used.
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
+        Self(Mutex::new(InnerState::Uninitialized))
+    }
+
+    /// Create an uninitialized `Awaitable`.
+    ///
+    /// Must be `reset` before it can be used.
+    #[cfg(feature = "parking_lot")]
+    pub const fn const_new() -> Self {
         Self(const_mutex(InnerState::Uninitialized))
     }
 }
