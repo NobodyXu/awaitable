@@ -1,6 +1,6 @@
 [package]
-name = "awaitable"
-version = "0.3.3"
+name = "awaitable-error"
+version = "0.1.0"
 edition = "2018"
 
 authors = ["Jiahao XU <Jiahao_XU@outlook.com>"]
@@ -12,9 +12,5 @@ repository = "https://github.com/NobodyXu/awaitable"
 keywords = ["async", "utilities"]
 categories = ["asynchronous"]
 
-[workspace]
-members = ["awaitable-error"]
-
 [dependencies]
-awaitable-error = { version = "0.1.0", path = "awaitable-error" }
-parking_lot = "0.12.0"
+thiserror = "1.0.29"
