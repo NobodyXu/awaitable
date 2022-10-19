@@ -17,4 +17,5 @@ members = ["awaitable-error"]
 
 [dependencies]
 awaitable-error = { version = "0.1.0", path = "awaitable-error" }
+cfg-if = "1.0.0"
 parking_lot = "0.12.0"
