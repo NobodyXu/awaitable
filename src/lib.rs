@@ -26,8 +26,8 @@ impl<Input, Output> Awaitable<Input, Output> {
     /// Create an uninitialized `Awaitable`.
     ///
     /// Must be `reset` before it can be used.
-    pub const fn new() -> Self {
-        Self(const_mutex(InnerState::Uninitialized))
+    pub fn new() -> Self {
+        Self(Mutex::new(InnerState::Uninitialized))
     }
 
     /// Create an uninitialized `Awaitable`.
