@@ -2,8 +2,7 @@ use core::fmt::Debug;
 use core::mem;
 use core::task::Waker;
 
-use parking_lot::const_mutex;
-use parking_lot::Mutex;
+use parking_lot::{const_mutex, Mutex};
 
 pub use awaitable_error::Error;
 
@@ -28,6 +27,13 @@ impl<Input, Output> Awaitable<Input, Output> {
     ///
     /// Must be `reset` before it can be used.
     pub const fn new() -> Self {
+        Self(const_mutex(InnerState::Uninitialized))
+    }
+
+    /// Create an uninitialized `Awaitable`.
+    ///
+    /// Must be `reset` before it can be used.
+    pub const fn const_new() -> Self {
         Self(const_mutex(InnerState::Uninitialized))
     }
 }
