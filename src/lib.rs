@@ -1,8 +1,28 @@
-use core::fmt::Debug;
-use core::mem;
-use core::task::Waker;
+use cfg_if::cfg_if;
+use std::{mem, task::Waker};
 
-use parking_lot::{const_mutex, Mutex};
+cfg_if! {
+    if #[cfg(feature = "parking_lot")] {
+        use parking_lot::{const_mutex, Mutex};
+    } else {
+        use std::sync::{Mutex as StdMutex, MutexGuard};
+
+        #[derive(Debug)]
+        #[repr(transparent)]
+        struct Mutex<T>(StdMutex<T>);
+
+        impl<T> Mutex<T> {
+            fn new(val: T) -> Self {
+                Self(StdMutex::new(val))
+            }
+
+            #[track_caller]
+            fn lock(&self) -> MutexGuard<'_, T> {
+                self.0.lock().unwrap()
+            }
+        }
+    }
+}
 
 pub use awaitable_error::Error;
 
@@ -39,6 +59,7 @@ impl<Input, Output> Awaitable<Input, Output> {
     /// Create an uninitialized `Awaitable`.
     ///
     /// Must be `reset` before it can be used.
+    #[cfg(feature = "parking_lot")]
     pub const fn const_new() -> Self {
         Self(const_mutex(InnerState::Uninitialized))
     }
