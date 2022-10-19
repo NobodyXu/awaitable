@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+
 use cfg_if::cfg_if;
 use std::{mem, task::Waker};
 
