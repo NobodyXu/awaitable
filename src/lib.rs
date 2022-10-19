@@ -22,6 +22,12 @@ enum InnerState<Input, Output> {
 #[derive(Debug)]
 pub struct Awaitable<Input, Output>(Mutex<InnerState<Input, Output>>);
 
+impl<Input, Output> Default for Awaitable<Input, Output> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<Input, Output> Awaitable<Input, Output> {
     /// Create an uninitialized `Awaitable`.
     ///
