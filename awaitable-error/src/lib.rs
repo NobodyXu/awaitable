@@ -1,6 +1,7 @@
 use std::{error, fmt};
 
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum Error {
     /// Awaitable is not initialized yet.
     Uninitialized,
