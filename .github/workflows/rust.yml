@@ -71,3 +71,5 @@ jobs:
         key: ${{ github.event.repository.name }}-${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}-v2
     - name: Run tests
       run: cargo test --all-features
+    - name: Run tests without optional features
+      run: cargo test
