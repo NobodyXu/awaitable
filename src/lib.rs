@@ -5,7 +5,7 @@ use std::{mem, task::Waker};
 
 cfg_if! {
     if #[cfg(feature = "parking_lot")] {
-        use parking_lot::{const_mutex, Mutex};
+        use parking_lot::Mutex;
     } else {
         use std::sync::{Mutex as StdMutex, MutexGuard};
 
@@ -63,7 +63,7 @@ impl<Input, Output> Awaitable<Input, Output> {
     /// Must be `reset` before it can be used.
     #[cfg(feature = "parking_lot")]
     pub const fn const_new() -> Self {
-        Self(const_mutex(InnerState::Uninitialized))
+        Self(Mutex::new(InnerState::Uninitialized))
     }
 }
 
