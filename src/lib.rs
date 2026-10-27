@@ -14,7 +14,7 @@ cfg_if! {
         struct Mutex<T>(StdMutex<T>);
 
         impl<T> Mutex<T> {
-            fn new(val: T) -> Self {
+            const fn new(val: T) -> Self {
                 Self(StdMutex::new(val))
             }
 
@@ -61,7 +61,6 @@ impl<Input, Output> Awaitable<Input, Output> {
     /// Create an uninitialized `Awaitable`.
     ///
     /// Must be `reset` before it can be used.
-    #[cfg(feature = "parking_lot")]
     pub const fn const_new() -> Self {
         Self(Mutex::new(InnerState::Uninitialized))
     }
