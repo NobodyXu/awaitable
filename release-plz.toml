@@ -1,0 +1,14 @@
+[changelog]
+# Same as release-plz's default Keep a Changelog parsers, except that
+# Dependabot bumps of GitHub Actions are skipped: `.github/` is shipped in the
+# published crate, so without this every CI bump would show up in CHANGELOG.md.
+commit_parsers = [
+    { message = "^Bump actions/", skip = true },
+    { message = "^feat", group = "added" },
+    { message = "^changed", group = "changed" },
+    { message = "^deprecated", group = "deprecated" },
+    { message = "^removed", group = "removed" },
+    { message = "^fix", group = "fixed" },
+    { message = "^security", group = "security" },
+    { message = ".*", group = "other" },
+]
